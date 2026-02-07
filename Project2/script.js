@@ -30,5 +30,3 @@ function animate(){
 }
 animate();
 
-//hello this is kajal
-//try in github
