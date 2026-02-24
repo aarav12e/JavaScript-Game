@@ -61,6 +61,36 @@ class Raven {
 
     }
 }
+let explosions = [];
+class Explosion {
+    constructor(x, y, size) {
+        this.image = new Image();
+        this.image.src = './boom.png';
+        this.spritHeight = 200;
+        this.spritWidth = 179;
+        this.size = size;
+        this.x = x;
+        this.y = y;
+        this.frame = 0;
+        this.sound = new Audio();
+        this.sound.src = './Magic SFX Preview Pack/fire impact 1.wav';
+        this.timeSinceLastFrame = 0;
+        this.frameInterval = 200;
+        this.markerForDeletion = false;
+    }
+    update(deltatime){
+        if (this.frame === 0) this.sound.play();
+        this.timeSinceLastFrame += deltatime;
+        if(this.timeSinceLastFrame > this.frameInterval){
+            this.frame++;
+            this.timeSinceLastFrame = 0;
+            if (this.frame > 5) this.markerForDeletion = true;
+        }
+    }
+    draw(){
+        ctx.drawImage(this.image, this.frame * this.spritWidth, 0, this.spritWidth, this.spritHeight, this.x, this.y, this.size, this.size);
+    }
+}
 
 function drawScore(){
     ctx.fillStyle = 'black';
@@ -77,6 +107,7 @@ window.addEventListener('click', function(e){
         if (object.randomColors[0] === pc[0] && object.randomColors[1] === pc[1] && object.randomColors[2] === pc[2]){
           object.markerForDeletion = true;  
           score++;
+          explosions.push(new Explosion(object.x, object.y, object.width));
         }
     });
 })
@@ -97,9 +128,10 @@ function animate(timestamp){
         });
     };
     drawScore();
-    [...ravens].forEach(Object => Object.update(deltatime));
-    [...ravens].forEach(Object => Object.draw());
+    [...ravens, ...explosions].forEach(Object => Object.update(deltatime));
+    [...ravens, ...explosions].forEach(Object => Object.draw());
     ravens = ravens.filter(Object => !Object.markerForDeletion);
+    explosions = explosions.filter(Object => !Object.markerForDeletion);
 
     requestAnimationFrame(animate);
 
